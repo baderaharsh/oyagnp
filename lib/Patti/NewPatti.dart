@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:omgnp/Widgets/UI/TableHeading.dart';
-import 'package:omgnp/Widgets/UI/TableText.dart';
+import 'package:omgnp/Data/Format.dart';
+import 'package:omgnp/Patti/PattiTable.dart';
 
 class NewPatti extends StatefulWidget {
   const NewPatti({super.key});
@@ -14,11 +14,10 @@ class NewPatti extends StatefulWidget {
 class _NewPattiState extends State<NewPatti> {
   
   bool isBatav = true;
-
   @override
   Widget build(BuildContext context) {
 
-    double grandTotal = 0;
+    int grandTotal = 0;
     int batav = 0;
     final Map<String, dynamic> newPatti =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
@@ -28,11 +27,8 @@ class _NewPattiState extends State<NewPatti> {
     particulars.forEach((particular) {
       particular.putIfAbsent('subtotal', () => (particular['weight'] * particular['rate']).round());
       totalWeight += particular['weight'];
-      grandTotal += particular['subtotal'].toDouble();
+      grandTotal += int.parse('${particular['subtotal']}');
     });
-    
-    // particulars.forEach((particular) => particular.putIfAbsent('subtotal', () => (particular['weight'] * particular['rate']).round()));
-    // particulars.forEach((particular) => totalWeight += particular['weight'],);
 
     final mandi = (totalWeight * 30).round();
     
@@ -43,8 +39,8 @@ class _NewPattiState extends State<NewPatti> {
       grandTotal -= batav;
     }
 
-    grandTotal -= newPatti['brokerage'];
-    grandTotal -= newPatti['kata'];
+    grandTotal -= int.parse('${newPatti['brokerage']}');
+    grandTotal -= int.parse('${newPatti['kata']}');
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +62,39 @@ class _NewPattiState extends State<NewPatti> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("Date : ${Format.date(newPatti['date'])}")
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(newPatti['customer'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+                        if(newPatti['address'] != null)
+                        Text(', ${newPatti['address']}'),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text("RST : "),
+                        Text(newPatti['rst'].join(', '))
+                      ],
+                    ),
+                    Text("Vehicle Number : ${newPatti['vehicle']}"),
+                    if(newPatti['broker'] != null)
+                    Text("Broker : ${newPatti['broker']}")
+                  ],
+                ),
+              ),
               Row(
                 children: [
                   Checkbox(value: isBatav, onChanged: (value) => setState(() {
@@ -75,101 +103,7 @@ class _NewPattiState extends State<NewPatti> {
                   const Text("Batav?", style: TextStyle(fontWeight: FontWeight.bold),),
                 ],
               ),
-              Table(
-                columnWidths: const {
-                  0 : FractionColumnWidth(0.35),
-                  1 : FractionColumnWidth(0.65)
-                },
-                border: TableBorder.all(borderRadius: BorderRadius.circular(10)),
-                children: [
-                  const TableRow(
-                    children: [
-                      TableCell(child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("Particulars", textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-                      )),
-                      TableCell(child: Text(""))
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      const TableCell(
-                        verticalAlignment: TableCellVerticalAlignment.middle,
-                        child: Text("Cotton Kapas", textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      TableCell(child: Table(
-                        border: TableBorder.symmetric(
-                          inside: const BorderSide(
-                           width: 1 
-                          )
-                        ),
-                        children: [const TableRow(
-                          children: [
-                            TableCell(child: TableHeading("Weight (Qtl)")),
-                            TableCell(child: TableHeading("Rate")),
-                            TableCell(child: TableHeading("Subtotal"))
-                          ]
-                        ),...particulars.map<TableRow>((particular) => TableRow(
-                          children: <TableCell>[
-                            TableCell(child: TableText(particular['weight'].toString())),
-                            TableCell(child: TableText(particular['rate'].toString())),
-                            TableCell(child: TableText((particular['subtotal']).toString())),
-                          ]
-                        )).toList()],
-                      ))
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Container(),),
-                      TableCell(child: Table(
-                        border: TableBorder.symmetric(
-                          inside: const BorderSide(
-                           width: 1 
-                          )
-                        ),
-                        children: [
-                          TableRow(
-                            children: [
-                              TableCell(child: Container()),
-                              const TableCell(child: TableHeading("Brokerage")),
-                              TableCell(child: TableText('- ${newPatti['brokerage']}'))
-                            ]
-                          ),
-                          TableRow(
-                            children: [
-                              TableCell(child: Container()),
-                              const TableCell(child: TableHeading("Kata")),
-                              TableCell(child: TableText('- ${newPatti['kata']}'))
-                            ]
-                          ),
-                          TableRow(
-                            children: [
-                              TableCell(child: Container()),
-                              const TableCell(child: TableHeading("Mandi")),
-                              TableCell(child: TableText('- $mandi'))
-                            ]
-                          ),
-                          if(isBatav)
-                          TableRow(
-                            children: [
-                              TableCell(child: Container()),
-                              const TableCell(child: TableHeading("Batav")),
-                              TableCell(child: TableText('- $batav'))
-                            ]
-                          )
-                        ],
-                      ))
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      const TableCell(child: TableHeading("Grnad Total")),
-                      TableCell(child: TableText('$grandTotal'))
-                    ]
-                  )
-                ],
-              ),
+              PattiTable(particulars, newPatti['brokerage'], newPatti['kata'], mandi, isBatav, batav, grandTotal)
             ],
           ),
         ),
