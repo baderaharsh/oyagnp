@@ -79,6 +79,7 @@ class PattiTable extends StatelessWidget {
               child: Table(
             border: TableBorder.symmetric(inside: const BorderSide(width: 1)),
             children: [
+              if(brokerage != 0)
               TableRow(children: [
                 TableCell(child: Container()),
                 const TableCell(child: TableHeading("Brokerage")),
