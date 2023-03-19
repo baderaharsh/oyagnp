@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:omgnp/Data/Format.dart';
+import 'package:omgnp/Patti/PattiHeader.dart';
 import 'package:omgnp/Patti/PattiTable.dart';
 
 class NewPatti extends StatefulWidget {
@@ -62,39 +62,6 @@ class _NewPattiState extends State<NewPatti> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text("Date : ${Format.date(newPatti['date'])}")
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(newPatti['customer'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-                        if(newPatti['address'] != null)
-                        Text(', ${newPatti['address']}'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text("RST : "),
-                        Text(newPatti['rst'].join(', '))
-                      ],
-                    ),
-                    Text("Vehicle Number : ${newPatti['vehicle']}"),
-                    if(newPatti['broker'] != null)
-                    Text("Broker : ${newPatti['broker']}")
-                  ],
-                ),
-              ),
               Row(
                 children: [
                   Checkbox(value: isBatav, onChanged: (value) => setState(() {
@@ -103,6 +70,7 @@ class _NewPattiState extends State<NewPatti> {
                   const Text("Batav?", style: TextStyle(fontWeight: FontWeight.bold),),
                 ],
               ),
+              PattiHeader(newPatti['customer'], newPatti['date'], newPatti['rst'], newPatti['vehicle'], address: newPatti['address'], broker: newPatti['broker'],),
               PattiTable(particulars, newPatti['brokerage'], newPatti['kata'], mandi, isBatav, batav, grandTotal)
             ],
           ),

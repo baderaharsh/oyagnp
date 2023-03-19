@@ -28,7 +28,7 @@ class _NewPattiFormState extends State<NewPattiForm> {
   }
 
   void saveForm() {
-    if(formKey.currentState!.validate()) {
+    if (formKey.currentState!.validate()) {
       particulars.clear();
       formKey.currentState!.save();
       final newPatti = {
@@ -36,7 +36,7 @@ class _NewPattiFormState extends State<NewPattiForm> {
         "vehicle": vehiclePlateNumber,
         "customer": customer,
         "broker": broker,
-        "brokerage": brokerage, 
+        "brokerage": brokerage,
         "material": material,
         "address": address,
         "particulars": particulars,
@@ -44,7 +44,7 @@ class _NewPattiFormState extends State<NewPattiForm> {
         "date": date
       };
 
-      Navigator.of(context).pushReplacementNamed(NewPatti.pageRoute, arguments: newPatti);
+      Navigator.of(context).pushNamed(NewPatti.pageRoute, arguments: newPatti);
     }
   }
 
@@ -131,26 +131,31 @@ class _NewPattiFormState extends State<NewPattiForm> {
                   ),
                   keyboardType: TextInputType.text,
                   textCapitalization: TextCapitalization.words,
-                  onSaved: (newValue) => broker = newValue!.trim(),
+                  onChanged: (value) => broker = value.trim(),
                 ),
                 TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: "Brokerage",
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value!.trim().isEmpty) {
-                                  return "Please enter rate";
-                                }
-                                if (int.tryParse(value.trim()) == null || int.parse(value) <= 0) {
-                                  return "Invalid rate";
-                                }
-                                return null;
-                              },
-                              onSaved: (newValue) {
-                               brokerage = int.parse(newValue!.trim());
-                              },
-                            ),
+                  decoration: const InputDecoration(
+                    labelText: "Brokerage",
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (broker.isNotEmpty) {
+                      if (value!.trim().isEmpty) {
+                        return "Please enter rate";
+                      }
+                      if (int.tryParse(value.trim()) == null ||
+                          int.parse(value) <= 0) {
+                        return "Invalid rate";
+                      }
+                    }
+                    return null;
+                  },
+                  onSaved: (newValue) {
+                    if(broker.isNotEmpty) {
+                    brokerage = int.parse(newValue!.trim());
+                    }
+                  },
+                ),
                 TextFormField(
                   decoration: const InputDecoration(
                     labelText: "Address",
@@ -158,7 +163,7 @@ class _NewPattiFormState extends State<NewPattiForm> {
                   keyboardType: TextInputType.text,
                   textCapitalization: TextCapitalization.words,
                   onSaved: (newValue) =>
-                      newValue!.isEmpty ? "" : address = newValue.trim(),
+                      newValue!.isEmpty ? address = "" : address = newValue.trim(),
                 ),
                 TextFormField(
                     enabled: false, initialValue: "Material : $material"),
@@ -169,20 +174,21 @@ class _NewPattiFormState extends State<NewPattiForm> {
                   initialValue: "50",
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if(value!.isEmpty) {
+                    if (value!.isEmpty) {
                       return "Please enter Kata rate";
                     }
-                    if(int.tryParse(value) == null) {
+                    if (int.tryParse(value) == null) {
                       return "Please a valid amount";
                     }
-                    if(int.parse(value) < 0) {
+                    if (int.parse(value) < 0) {
                       return "Kata rate cannot be negative";
                     }
 
                     return null;
                   },
-                  onSaved: (newValue) =>
-                      newValue!.isEmpty ? "" : kata = int.parse(newValue.trim()),
+                  onSaved: (newValue) => newValue!.isEmpty
+                      ? ""
+                      : kata = int.parse(newValue.trim()),
                 ),
                 ...rst
                     .map((selectedRst) => Column(
@@ -206,10 +212,9 @@ class _NewPattiFormState extends State<NewPattiForm> {
                                   return null;
                                 },
                                 onSaved: (newValue) => particulars.add({
-                                  "rst": selectedRst,
-                                  "weight": double.parse(newValue!),
-                                })
-                              ),
+                                      "rst": selectedRst,
+                                      "weight": double.parse(newValue!),
+                                    })),
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: "RST #$selectedRst Rate",
@@ -225,9 +230,11 @@ class _NewPattiFormState extends State<NewPattiForm> {
                                 return null;
                               },
                               onSaved: (newValue) {
-                                particulars.firstWhere((particular) => 
-                                  particular['rst'] == selectedRst
-                                ).putIfAbsent("rate", () => double.parse(newValue!));
+                                particulars
+                                    .firstWhere((particular) =>
+                                        particular['rst'] == selectedRst)
+                                    .putIfAbsent(
+                                        "rate", () => double.parse(newValue!));
                               },
                             ),
                           ],
